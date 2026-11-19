@@ -8,9 +8,9 @@
 
 | 项目 | 许可证 | 技术栈 | 维护状态（2026-11-19 核验） | 决定 |
 |---|---|---|---|---|
-| OpenSalon（clawnify/OpenSalon） | MIT | Laravel 12 / PHP 8.2 / MySQL | 约 103 star、无 Release、单人业余项目；有预约/员工/客户/库存，无 POS、无会员储值积分 | **不采用**：PHP 栈与现有 TS 资产零复用，功能覆盖反而少于现有系统 |
-| Easy!Appointments（alextselegidis/easyappointments） | GPL-3.0 | PHP / CodeIgniter 4 / MySQL | 长期维护（v1.5.2，2025-10）；预约与日历同步成熟 | **不采用代码，仅借鉴产品流程**：GPL-3.0 传染性与未来商业分发冲突；PHP 栈不兼容。注：GPL-3.0 非 AGPL，单纯 SaaS 使用不触发开源义务，但衍生分发会 |
-| Lumina（effuselabs/lumina） | **无 LICENSE 文件** | Next.js / Prisma / PostgreSQL | v0.4.1、pre-1.0、单人维护 | **拒绝**：无许可证即无使用权，法律上不可商用；成熟度也不足 |
+| OpenSalon（clawnify/OpenSalon） | MIT | TypeScript、Preact + Hono、SQLite/Cloudflare D1、自研框架 @clawnify/app 0.4.9 | 约 70 star、2026-04 创建、无 Release；有预约/员工/客户/库存，无收银、无多门店、无通知 | **不采用为底座，可借鉴组件与设计**：MIT 是三者中唯一可合法搬代码的，但其 SQLite/D1＋未成熟自研框架撑不起现有 PostgreSQL 排斥约束防双占体系，且无收银 |
+| Easy!Appointments（alextselegidis/easyappointments） | GPL-3.0 | PHP / CodeIgniter 4 / MySQL | 长期维护（v1.6.1，2026-10；4,497 star）；预约与日历同步成熟 | **不采用代码，仅借鉴产品流程**：GPL-3.0 传染性与未来商业分发冲突；PHP 栈不兼容。注：GPL-3.0 非 AGPL，单纯 SaaS 使用不触发开源义务，但衍生分发会 |
+| Lumina（effuselabs/lumina） | **AGPL-3.0** | Next.js 14 / Prisma / PostgreSQL | 1 star、pre-release，README 自述不适合真实顾客 | **拒绝**：AGPL §13 网络条款与多门店 SaaS 商业模式直接冲突，且无商业授权选项；成熟度也不足 |
 | FullCalendar | 核心 MIT；**Resource Timeline 等资源视图为付费 Premium** | JS 组件 | 活跃维护 | **不引入**：现有自研排单日历已满足需求且避开 Premium 授权费；未来若需时间轴视图再评估付费或替代件 |
 
 ## 为什么保留现有核心

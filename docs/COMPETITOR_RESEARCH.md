@@ -155,6 +155,6 @@
 
 ## V14 轮次更新（2026-11-19 核验）
 
-- 核验对象：OpenSalon（MIT，Laravel/PHP，约 103 star、无 Release、无 POS/会员）、Easy!Appointments（GPL-3.0，PHP/CodeIgniter，v1.5.2 活跃维护）、Lumina（无 LICENSE 文件，Next.js/Prisma，v0.4.1 pre-1.0）、FullCalendar（核心 MIT，Resource Timeline 为付费 Premium）。
-- 结论：三家候选底座均不采用（栈不兼容／GPL 传染／无许可证）；FullCalendar 不引入（现有自研日历已覆盖需求）。架构决定全文见 `docs/ARCHITECTURE_DECISION_V14.md`，逐项证据见 `docs/OSS_EVALUATION_V14.md`。
+- 核验对象：OpenSalon（MIT，TS/Hono＋SQLite・Cloudflare D1＋自研框架，约 70 star、无 Release、无收银）、Easy!Appointments（GPL-3.0，PHP/CodeIgniter，v1.6.1 活跃维护）、Lumina（AGPL-3.0，Next.js/Prisma，pre-release 自述不适合真实顾客）、FullCalendar（核心 MIT，Resource Timeline 为付费 Premium）。
+- 结论：三家候选底座均不采用（底座不成熟／GPL 传染／AGPL 网络条款）；FullCalendar 不引入（现有自研日历已覆盖需求）。架构决定全文见 `docs/ARCHITECTURE_DECISION_V14.md`，逐项证据见 `docs/OSS_EVALUATION_V14.md`。
 - 本轮借鉴的产品思想：SALON BOARD／かんざし 的"取消补位"工作流——热门时段满约不流失、取消后按登记顺序联系补位。已落地为 V14 等候名单模块（顾客端登记＋店长端候选查询），未复制任何闭源实现。
