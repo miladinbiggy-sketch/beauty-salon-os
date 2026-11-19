@@ -1,0 +1,24 @@
+@import "tailwindcss";
+@theme {
+  --color-rose-brand:#8f5364;
+  --color-rose-brand-dark:#724455;
+  --color-cream:#fbf8f6;
+  --font-sans:"Inter","Hiragino Sans","Hiragino Kaku Gothic ProN","Noto Sans JP","Noto Sans SC","PingFang SC","Microsoft YaHei",system-ui,-apple-system,sans-serif;
+}
+html {font-family:var(--font-sans);-webkit-tap-highlight-color:transparent;}
+body {color:#433e40;background:#f9f5f2;-webkit-font-smoothing:antialiased;}
+.customer-shell {background:radial-gradient(ellipse 850px 440px at 9% 1%,#f8e5e4 0%,transparent 75%),radial-gradient(ellipse 900px 550px at 95% 70%,#edf4ec 0%,transparent 78%),#faf7f4;}
+.customer-panel::before {content:"";position:absolute;left:0;top:0;width:100%;height:5px;background:linear-gradient(90deg,#ddaea7,#946178,#6f9e8a);}
+.customer-panel input,.customer-panel select,.customer-panel textarea {transition:border-color .16s, box-shadow .16s;}
+.customer-panel input:focus,.customer-panel select:focus,.customer-panel textarea:focus {outline:0;border-color:#ae7180;box-shadow:0 0 0 3px rgba(167,110,129,.13);}
+.customer-service {border:1px solid #f0e4e2;border-radius:17px;background:white;box-shadow:0 4px 20px -17px #7a4f5c;transition:border-color .18s,transform .18s,box-shadow .18s;}
+.customer-service:hover {border-color:#d7b9bf;box-shadow:0 10px 28px -20px #916774;transform:translateY(-1px);}
+.customer-service[data-selected="true"] {background:linear-gradient(135deg,#fff9f9,#fff);border-color:#9e6a7a;box-shadow:0 0 0 2px rgba(144,90,107,.08);}
+.customer-progress-step {height:5px;flex:1;border-radius:999px;background:#eee5e3;transition:background .2s;}
+.customer-progress-step[data-done="true"] {background:#8f596b;}
+.no-scrollbar {scrollbar-width:none;}
+.no-scrollbar::-webkit-scrollbar {display:none;}
+.thin-scroll::-webkit-scrollbar {height:6px;width:6px;}
+.thin-scroll::-webkit-scrollbar-thumb {background:#e7ddd8;border-radius:9999px;}
+:focus-visible {outline:3px solid #d5a5b4;outline-offset:3px;}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{transition-duration:.01ms!important;animation-duration:.01ms!important;}}

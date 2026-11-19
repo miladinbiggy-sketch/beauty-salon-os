@@ -1,0 +1,64 @@
+{
+  "project": "Beauty Salon OS",
+  "version": "V12",
+  "dateJST": "2026-11-19",
+  "basedOn": {
+    "candidate": "Beauty_Salon_OS_V11_营业时间与预约菜单保护候选源码.zip",
+    "sha256": "578a043efa029714364962eb14f41158fdc4a305792e149e8deb91c24e81b2ad",
+    "verified": true,
+    "zipCrc": true
+  },
+  "preservedPredecessors": "V7,V8,V9,V10,V11 sha256 & zip CRC matched; V7-V11 local candidate chains are intact",
+  "features": [
+    "Durable UUID-backed store-scoped receipt/refund idempotency with canonical SHA256 request fingerprints",
+    "Same UUID + same intent returns existing payment 200 even after a closed business day; changed intent returns 409",
+    "Existing cash ledger advisory lock + payment unique index serializes concurrent receipt/refund retries",
+    "Financial audit and payment state changes use one PostgreSQL transaction; audit error rolls back payment",
+    "Front desk reuses operation UUID after ambiguous network failures; changed form generates new UUID; i18n failure guidance",
+    "Internal idempotency UUID/fingerprint excluded from admin payment response"
+  ],
+  "added": [
+    "apps/api/src/services/payment-idempotency.ts",
+    "apps/admin-web/src/lib/payment-retry.ts",
+    "packages/database/migrations/0007_payment_idempotency.sql",
+    "tests/payment-idempotency-unit.test.mjs",
+    "tests/payment-retry-ui-unit.test.mjs",
+    "docs/CHANGELOG_V12.md",
+    "docs/BUILD_REPORT_V12.json"
+  ],
+  "modified": [
+    "apps/api/src/routes/admin.ts",
+    "apps/api/src/api.test.ts",
+    "apps/admin-web/src/lib/api.ts",
+    "apps/admin-web/src/pages/Payments.tsx",
+    "packages/database/src/schema.ts",
+    "packages/database/migrations/meta/_journal.json",
+    "packages/i18n/src/ja.ts",
+    "packages/i18n/src/zh-CN.ts",
+    "README.md",
+    "docs/COMPETITOR_RESEARCH.md",
+    "package.json",
+    "package-lock.json"
+  ],
+  "verification": {
+    "nodeUnit": "36/36 PASS (8 new V12 tests)",
+    "sourceSyntax": "93 TS/TSX/JS parsed with TypeScript parser, 0 parse errors",
+    "relativeImports": "178 relative module specifiers checked, 0 missing",
+    "i18n": "223 ja & zh-CN key pairs matched",
+    "postgresIntegration": "3 V12 scenarios written, NOT EXECUTED (PostgreSQL and npm dependencies unavailable)",
+    "npmCiOffline": "FAILED ENOTCACHED: registry.npmjs.org/vite/-/vite-6.4.6.tgz",
+    "npmCiOnline": "TIMED OUT under 20 seconds; no complete dependency install",
+    "typecheck": "BLOCKED TS2688 @types/node missing (full dependencies not installed)",
+    "browserE2E": "NOT EXECUTED",
+    "realPaymentProvider": "NOT TESTED; application ledger records only",
+    "zip": "Packed all source files, checksum validated after writing"
+  },
+  "libraryStatus": "/Beauty Salon OS files.list failed internally, and V7 upload retried this turn with AccessDeny. V12 will be uploaded after ZIP creation; success/failure is reported outside immutable ZIP.",
+  "deployment": "Back up & stop old API; apply all 0000-0007 migrations in order; test idempotent receipts, refunds and cash-close in isolated PG; restart only after full build and review.",
+  "limitations": [
+    "Previous callers without Idempotency-Key can still submit duplicates; migrate before commercial rollout and eventually require header.",
+    "UI UUID is in-memory and cannot be reused after browser close/refresh; reconcile ledger before retry.",
+    "Ledger idempotency does not perform or reconcile external gateway refunds/payments.",
+    "No end-to-end PG or browser verification, not approved for merchant production."
+  ]
+}

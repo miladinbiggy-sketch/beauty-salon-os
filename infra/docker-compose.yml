@@ -1,0 +1,128 @@
+# Beauty Salon OS — Docker Compose 部署
+# 用法：cp .env.example .env（改密码与域名）→ docker compose up -d --build
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-salon}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?请在 .env 中设置 POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB:-salon}
+      TZ: Asia/Tokyo
+    volumes:
+      - salon-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-salon}"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - salon-redis:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  migrate:
+    build:
+      context: ..
+      dockerfile: infra/Dockerfile.app
+    environment:
+      DATABASE_URL: postgres://${POSTGRES_USER:-salon}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-salon}
+    command: ["npx", "tsx", "packages/database/src/migrate.ts"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: "no"
+
+  seed:
+    build:
+      context: ..
+      dockerfile: infra/Dockerfile.app
+    environment:
+      NODE_ENV: production
+      SEED_DEMO: ${SEED_DEMO:-false}
+      DATABASE_URL: postgres://${POSTGRES_USER:-salon}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-salon}
+    # 仅当 SEED_DEMO=true 时写入演示数据（种子脚本幂等，重复运行自动跳过）
+    command: ["sh", "-c", "if [ \"$SEED_DEMO\" = \"true\" ]; then npx tsx packages/database/src/seed.ts; else echo 'SEED_DEMO != true, skip'; fi"]
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    restart: "no"
+
+  app:
+    build:
+      context: ..
+      dockerfile: infra/Dockerfile.app
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgres://${POSTGRES_USER:-salon}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-salon}
+      REDIS_URL: redis://redis:6379
+      JWT_SECRET: ${JWT_SECRET:?请在 .env 中设置 JWT_SECRET（至少 32 字符随机串）}
+      QUEUE_DRIVER: bullmq
+      PORT: "8787"
+      NODE_ENV: production
+      CORS_ORIGINS: ${CORS_ORIGINS:?CORS_ORIGINS must specify an explicit trusted origin}
+      TRUST_PROXY: "true"
+      RATE_LIMIT_DRIVER: redis
+      SESSION_COOKIE_PATH: /api
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8787/health || exit 1"]
+      interval: 10s
+      timeout: 3s
+      retries: 12
+
+  worker:
+    build:
+      context: ..
+      dockerfile: infra/Dockerfile.app
+    restart: unless-stopped
+    command: ["node", "apps/worker/dist/index.js"]
+    environment:
+      DATABASE_URL: postgres://${POSTGRES_USER:-salon}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-salon}
+      REDIS_URL: redis://redis:6379
+      QUEUE_DRIVER: bullmq
+      LINE_CHANNEL_ACCESS_TOKEN: ${LINE_CHANNEL_ACCESS_TOKEN:-}
+      WORKER_POLL_MS: "15000"
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      redis:
+        condition: service_healthy
+
+  web:
+    build:
+      context: ..
+      dockerfile: infra/Dockerfile.web
+      args:
+        VITE_API_BASE: /api
+        VITE_STORE_ID: ${STORE_ID:-11111111-1111-4111-8111-111111111111}
+    restart: unless-stopped
+    environment:
+      SALON_DOMAIN: ${SALON_DOMAIN:-http://localhost}
+    ports:
+      - "${WEB_PORT:-8080}:80"
+      - "${WEB_HTTPS_PORT:-8443}:443"
+    volumes:
+      - salon-caddy-data:/data
+      - salon-caddy-config:/config
+    depends_on:
+      app:
+        condition: service_healthy
+
+volumes:
+  salon-pgdata:
+  salon-redis:
+  salon-caddy-data:
+  salon-caddy-config:

@@ -1,0 +1,49 @@
+{
+  "version": "V9",
+  "dateJST": "2026-11-19",
+  "codeBase": "V8 local candidate ZIP (SHA256 verified); V7,V8 library writes still AccessDeny, formal library base remains V6",
+  "candidateBaseSha256": "3c85dba468fab60007b8731dce2e300070399bc21ad2726cfc1ee8aed0c1d229",
+  "rootVersion": "0.9.0",
+  "features": [
+    "Atomic staff deactivation guard with future active bookings",
+    "Atomic removal-of-booked-skill guard",
+    "Equipment deactivation/type-change guard with future allocations",
+    "Manager-safe bilingual 409 responses and audit events"
+  ],
+  "added": [
+    "apps/api/src/services/master-data-guards.ts",
+    "tests/master-data-guards-unit.test.mjs",
+    "docs/CHANGELOG_V9.md",
+    "docs/BUILD_REPORT_V9.json"
+  ],
+  "modified": [
+    "apps/api/src/routes/admin.ts",
+    "apps/api/src/api.test.ts",
+    "apps/admin-web/src/pages/Staff.tsx",
+    "apps/admin-web/src/pages/Resources.tsx",
+    "packages/i18n/src/zh-CN.ts",
+    "packages/i18n/src/ja.ts",
+    "docs/COMPETITOR_RESEARCH.md",
+    "README.md",
+    "package.json",
+    "package-lock.json"
+  ],
+  "verification": {
+    "localV7sha256": "verified; f96cc8545f985bc7a6d48c80ac55cceb1377edbadc0e1c7059ecdf2d562df019",
+    "localV8sha256": "verified; 3c85dba468fab60007b8731dce2e300070399bc21ad2726cfc1ee8aed0c1d229",
+    "nodeUnitTests": "13/13 passed with node --experimental-strip-types",
+    "tsTsxParser": "86 files parsed, 0 syntax diagnostics",
+    "relativeImports": "172 relative references, 0 missing",
+    "typecheck": "NOT PASSED; npm ci timed out and third-party dependencies missing (drizzle-orm/luxon/vitest/@types/node etc)",
+    "pgIntegrationTests": "4 V9 integration cases authored, NOT RUN; no PostgreSQL service / complete node_modules",
+    "browserE2E": "NOT RUN",
+    "dbMigrations": "No new migration; V7 0005 remains prerequisite",
+    "archiveIntegrity": "verified after archive creation"
+  },
+  "risks": [
+    "Cooperative advisory lock requires all writers to follow convention; direct SQL bypasses cross-table guard",
+    "Legacy inconsistent appointments and master data are not auto-fixed",
+    "V7,V8 archive upload returned AccessDeny; V9 is local candidate until verified Library upload",
+    "Production release requires full TS build, PostgreSQL concurrent tests, browser E2E and migration rehearsal"
+  ]
+}

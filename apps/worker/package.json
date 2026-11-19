@@ -1,0 +1,22 @@
+{
+  "dependencies": {
+    "@salon/database": "*",
+    "@salon/shared": "*",
+    "bullmq": "^5.53.0",
+    "ioredis": "^5.6.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.0",
+    "tsup": "^8.5.0",
+    "tsx": "^4.19.4"
+  },
+  "name": "@salon/worker",
+  "private": true,
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsx watch src/index.ts",
+    "start": "node dist/index.js"
+  },
+  "type": "module",
+  "version": "0.1.0"
+}

@@ -1,0 +1,34 @@
+{
+  "description": "Beauty Salon OS — 日本美甲/美睫/美容一体化预约排单管理系统",
+  "devDependencies": {
+    "typescript": "^5.8.3",
+    "vitest": "^3.2.4"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "name": "beauty-salon-os",
+  "private": true,
+  "scripts": {
+    "build:web": "npm run build -w @salon/customer-web && npm run build -w @salon/admin-web",
+    "db:generate": "npm run generate -w @salon/database",
+    "db:migrate": "npm run migrate -w @salon/database",
+    "db:seed": "npm run seed -w @salon/database",
+    "dev:admin": "npm run dev -w @salon/admin-web",
+    "dev:api": "npm run dev -w @salon/api",
+    "dev:customer": "npm run dev -w @salon/customer-web",
+    "dev:worker": "npm run dev -w @salon/worker",
+    "test": "vitest run",
+    "test:api": "vitest run apps/api",
+    "test:scheduler": "vitest run packages/scheduler",
+    "typecheck": "tsc -b packages/shared packages/i18n packages/scheduler packages/database apps/api apps/worker",
+    "db:bootstrap": "npm run bootstrap -w @salon/database",
+    "test:unit": "node --experimental-strip-types --test tests/*-unit.test.mjs"
+  },
+  "type": "module",
+  "version": "0.12.0",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ]
+}

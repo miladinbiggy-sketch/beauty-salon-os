@@ -1,0 +1,1 @@
+{"dependencies":{"luxon":"^3.5.0"},"devDependencies":{"@types/luxon":"^3.4.2"},"exports":{".":"./src/index.ts"},"name":"@salon/shared","private":true,"type":"module","version":"0.1.0"}

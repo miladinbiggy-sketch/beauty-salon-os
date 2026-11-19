@@ -1,0 +1,26 @@
+# Beauty Salon OS 前端镜像：构建顾客端 + 管理端静态文件，由 Caddy 托管
+# 构建上下文 = 仓库根目录
+FROM node:22-alpine AS build
+WORKDIR /app
+ARG VITE_API_BASE=/api
+ARG VITE_STORE_ID=11111111-1111-4111-8111-111111111111
+ENV VITE_API_BASE=$VITE_API_BASE
+ENV VITE_STORE_ID=$VITE_STORE_ID
+COPY package.json package-lock.json ./
+COPY apps/api/package.json apps/api/package.json
+COPY apps/worker/package.json apps/worker/package.json
+COPY apps/customer-web/package.json apps/customer-web/package.json
+COPY apps/admin-web/package.json apps/admin-web/package.json
+COPY packages/shared/package.json packages/shared/package.json
+COPY packages/i18n/package.json packages/i18n/package.json
+COPY packages/scheduler/package.json packages/scheduler/package.json
+COPY packages/database/package.json packages/database/package.json
+RUN npm ci --no-audit --no-fund
+COPY . .
+RUN npm run build -w @salon/customer-web && npm run build -w @salon/admin-web
+
+FROM caddy:2-alpine
+COPY --from=build /app/apps/customer-web/dist /srv/customer
+COPY --from=build /app/apps/admin-web/dist /srv/admin
+COPY infra/Caddyfile /etc/caddy/Caddyfile
+EXPOSE 80 443

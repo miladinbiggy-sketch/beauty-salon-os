@@ -1,0 +1,54 @@
+{
+  "project": "Beauty Salon OS",
+  "version": "V11",
+  "dateJST": "2026-11-19",
+  "basedOn": {
+    "candidate": "Beauty_Salon_OS_V10_LINE通知去重与过期提醒保护候选源码.zip",
+    "sha256": "844a5f3fe7b61ea23b858efdc0fc74a7a8cd6271a14b683db6d790d8628cc790",
+    "verified": true
+  },
+  "features": [
+    "Atomic store settings and business hours in one transaction; no half-save",
+    "Weekly hours narrowing/closing checks existing active bookings in Tokyo time under storeLock",
+    "Booked service cannot be deactivated or switched to a different equipment type; snapshots allow price/name/duration changes",
+    "Manager-facing zh-CN/ja HTTP 409 action hints and transactional audit"
+  ],
+  "added": [
+    "apps/api/src/services/store-hours-guards.ts",
+    "tests/store-hours-guards-unit.test.mjs",
+    "docs/CHANGELOG_V11.md",
+    "docs/BUILD_REPORT_V11.json"
+  ],
+  "modified": [
+    "README.md",
+    "package.json",
+    "package-lock.json",
+    "apps/api/src/services/master-data-guards.ts",
+    "apps/api/src/routes/admin.ts",
+    "apps/admin-web/src/pages/Settings.tsx",
+    "apps/admin-web/src/pages/Services.tsx",
+    "packages/i18n/src/ja.ts",
+    "packages/i18n/src/zh-CN.ts",
+    "tests/master-data-guards-unit.test.mjs",
+    "apps/api/src/api.test.ts",
+    "docs/COMPETITOR_RESEARCH.md"
+  ],
+  "verification": {
+    "nodeUnit": "28 passed / 0 failed",
+    "typescriptTsxSyntax": "91 parsed, 0 syntax diagnostics",
+    "relativeImports": "174 checked, 0 missing",
+    "i18n": "222 matching zh-CN / ja translations",
+    "postgresIntegration": "3 new V11 API scenarios authored but NOT EXECUTED; PostgreSQL test instance unavailable",
+    "npmTypecheck": "NOT RUN: npm ci --offline failed ENOTCACHED (vite 6.4.6), package dependencies missing",
+    "browserE2E": "NOT RUN",
+    "archiveCRC": "V11 ZIP CRC test passed, no bad member; repacked after documentation status"
+  },
+  "libraryStatus": "V7 upload via both container_path and source_file_ref returned AccessDeny; V11 container_path upload returned AccessDeny; /Beauty Salon OS folder list failed internally. Neither V7-V11 candidate is confirmed in Library. Last previously confirmed ZIP: V6.",
+  "migrations": "No new migration; preserve existing 0000-0006; backup before deployment",
+  "risks": [
+    "PostgreSQL integration/concurrency tests and full builds not run; cannot certify commercial readiness",
+    "Advisory locks only work for writes through coordinated APIs; direct SQL writes can circumvent guard",
+    "No overnight business window support",
+    "All following releases need a working Library upload or verified local ZIP chain"
+  ]
+}

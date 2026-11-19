@@ -1,0 +1,62 @@
+{
+  "version": "V10",
+  "dateJST": "2026-11-19",
+  "basedOn": {
+    "candidate": "Beauty_Salon_OS_V9_技师技能工位预约保护候选源码.zip",
+    "sha256": "c37ff600f409ea75155d1a6297f06a2941bfd9011dc72240531386ebc017d19f",
+    "verified": true,
+    "libraryStatus": "prior Library writes of V7-V9 failed AccessDeny; current list read attempts failed internally; newest previously confirmed Library ZIP V6"
+  },
+  "features": [
+    "LINE Push UUID X-Line-Retry-Key / accepted duplicate 409 / bounded retries",
+    "Typed Drizzle job hydration and 10-minute sending leases, migration 0006",
+    "Suppress obsolete and expired booking reminders before delivery",
+    "No customer PII in mock notification logs; manager notification delivery status panel with minimal API fields"
+  ],
+  "added": [
+    "apps/worker/src/line-delivery.ts",
+    "apps/worker/src/notification-policy.ts",
+    "docs/CHANGELOG_V10.md",
+    "packages/database/migrations/0006_notification_delivery_safety.sql",
+    "tests/notification-delivery-unit.test.mjs",
+    "docs/BUILD_REPORT_V10.json"
+  ],
+  "modified": [
+    "README.md",
+    "apps/admin-web/src/pages/Settings.tsx",
+    "apps/api/src/routes/admin.ts",
+    "apps/worker/src/index.ts",
+    "apps/worker/src/processor.ts",
+    "apps/worker/src/senders.ts",
+    "apps/worker/src/worker.test.ts",
+    "docs/COMPETITOR_RESEARCH.md",
+    "package-lock.json",
+    "package.json",
+    "packages/database/migrations/meta/_journal.json",
+    "packages/database/src/schema.ts",
+    "packages/i18n/src/ja.ts",
+    "packages/i18n/src/zh-CN.ts"
+  ],
+  "deleted": [],
+  "verification": {
+    "nodeUnit": "23 passed / 0 failed (node --experimental-strip-types --test)",
+    "typescriptTsxSyntax": "86 parsed, 0 syntax diagnostics",
+    "relativeImports": "175 checked, 0 missing",
+    "i18n": "zh-CN/ja 220 matching keys",
+    "archiveCRC": "to be verified after packaging",
+    "typecheck": "BLOCKED: npm ci incomplete, missing dependencies/types (luxon, drizzle, vitest, @types/node, etc.)",
+    "postgresIntegration": "3 new V10 worker scenarios authored, NOT EXECUTED; no PostgreSQL running in this environment",
+    "externalLINE": "NOT TESTED with real LINE account; HTTP transport tested with stubs",
+    "browserE2E": "NOT RUN"
+  },
+  "migrations": [
+    "0006_notification_delivery_safety.sql added; requires sequential 0000-0006"
+  ],
+  "risks": [
+    "PostgreSQL tests and web build not verified; do not deploy as commercial release",
+    "LINE API accepted is not evidence of customer delivery",
+    "State check before network send cannot eliminate last-moment cancellation race",
+    "Migration fails and flags legacy sending records for manual reconciliation",
+    "Worker and database migrate must be deployed in order; never run mixed V9/V10 workers"
+  ]
+}

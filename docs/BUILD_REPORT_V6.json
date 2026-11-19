@@ -1,0 +1,37 @@
+{
+  "basedOn": "Beauty_Salon_OS_V5_1_经营可靠性修复.zip",
+  "basedOnSha256": "e269c41639a810a455e3086d1169ef983679bee095f38a3294cc1913fdd57ffe",
+  "version": "V6",
+  "changed": [
+    "README.md",
+    "apps/admin-web/src/App.tsx",
+    "apps/admin-web/src/lib/api.ts",
+    "apps/api/src/api.test.ts",
+    "apps/api/src/routes/admin.ts",
+    "package-lock.json",
+    "package.json",
+    "packages/database/migrations/meta/_journal.json",
+    "packages/database/src/schema.ts",
+    "packages/i18n/src/ja.ts",
+    "packages/i18n/src/zh-CN.ts"
+  ],
+  "added": [
+    "apps/admin-web/src/pages/CashClose.tsx",
+    "apps/api/src/services/cash-close.ts",
+    "apps/api/src/services/cash-summary.ts",
+    "docs/CHANGELOG_V6.md",
+    "docs/COMPETITOR_RESEARCH.md",
+    "packages/database/migrations/0004_cash_closes.sql",
+    "tests/cash-close-unit.test.mjs"
+  ],
+  "removed": [],
+  "verification": {
+    "pureUnitTests": "3 passed",
+    "tsTsxFilesParsed": 83,
+    "relativeImportsVerified": 156,
+    "migrationEntries": 5,
+    "typescriptTypeCheck": "blocked: @types/node missing",
+    "postgresqlIntegration": "not run",
+    "npmBuild": "not run: npm ci crashed"
+  }
+}

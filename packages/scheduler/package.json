@@ -1,0 +1,1 @@
+{"dependencies":{"@salon/shared":"*"},"exports":{".":"./src/index.ts"},"name":"@salon/scheduler","private":true,"type":"module","version":"0.1.0"}

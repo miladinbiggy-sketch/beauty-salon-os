@@ -1,0 +1,49 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Noto Sans JP", "Noto Sans SC", "PingFang SC", system-ui, sans-serif;
+}
+
+:root { color-scheme: light; --ink: #25302e; --forest: #25665b; --mint: #e8f2ed; --line: #e6ebe7; --canvas: #f5f7f4; }
+html,body,#root { height: 100%; min-height: 100%; }
+body { background: var(--canvas); color: var(--ink); font-family: var(--font-sans); -webkit-font-smoothing: antialiased; }
+button,input,select,textarea { font: inherit; }
+button { cursor:pointer; }
+button:disabled { cursor:not-allowed; }
+:focus-visible { outline: 3px solid #9dd0bf; outline-offset: 2px; }
+::selection { background:#b3dfcd; color:#193e35; }
+
+.salon-shell { background: var(--canvas); }
+.salon-sidebar { background: #fafcf9; border-color: var(--line); }
+.salon-nav-item { display:flex; align-items:center; gap:.8rem; min-height:43px; padding:.65rem .85rem; border-radius:13px; color:#60716b; font-size:13px; font-weight:540; transition: background .18s, color .18s; }
+.salon-nav-item:hover { background:#eff4f0; color:#2b534a; }
+.salon-nav-item.active { color:#165a4f; background:#e7f2eb; font-weight:700; }
+.salon-nav-item.active svg { stroke-width:2.2; }
+.salon-surface { background:#fff; border:1px solid var(--line); border-radius:18px; box-shadow:0 5px 24px -15px rgba(35,66,48,.13); }
+.salon-kpi { background:#fff; border:1px solid var(--line); border-radius:18px; padding:14px 18px; position:relative; overflow:hidden; box-shadow:0 8px 25px -22px rgba(31,65,48,.2); }
+.salon-kpi::before { content:""; position:absolute; inset:0 auto 0 0; width:3px; background:#8eb7a3; }
+.salon-kpi .number { font-size:clamp(1.35rem,2.25vw,1.8rem); line-height:1.2; font-weight:750; color:#263a34; font-variant-numeric:tabular-nums; letter-spacing:-.045em; }
+.salon-pill { border-radius:999px; background:#f2f5f2; padding:5px 10px; color:#587169; font-size:11px; font-weight:650; }
+.salon-control { background:white; border:1px solid #dbe5df; border-radius:12px; min-height:40px; }
+.salon-control:focus { border-color:#6ba58f; box-shadow:0 0 0 3px #d4ebdf; outline:0; }
+.salon-action { display:inline-flex; align-items:center; justify-content:center; gap:7px; border-radius:12px; background:#266959; padding:10px 15px; color:white; font-size:13px; font-weight:670; transition: transform .15s, background .15s; }
+.salon-action:hover { background:#1f594b; transform:translateY(-1px); }
+.salon-action:disabled { opacity:.5; transform:none; }
+.salon-secondary { display:inline-flex; align-items:center; justify-content:center; gap:7px; min-height:39px; border:1px solid #dfe8e1; border-radius:11px; background:#fff; padding:8px 11px; color:#46645b; font-size:12px; font-weight:620; }
+.salon-secondary:hover { background:#f1f6f1; }
+.salon-sticky-head { background:linear-gradient(180deg, #fff 0%, #fafcfb 100%); }
+.salon-appt { transition:box-shadow .14s, transform .14s; outline-offset:-3px; }
+.salon-appt:hover, .salon-appt:focus-visible { transform:translateY(-1px); z-index:15!important; box-shadow:0 5px 16px rgba(34,56,48,.17); }
+.salon-now { box-shadow: 0 0 0 1px #fff; }
+.salon-calendar-empty { background: repeating-linear-gradient(135deg,#f8faf9 0px,#f8faf9 10px,#f3f6f4 10px,#f3f6f4 20px); }
+.cal-half-lines { background-image:repeating-linear-gradient(to bottom,transparent 0,transparent calc(100% / var(--rows) - 1px),#e8efea calc(100% / var(--rows) - 1px),#e8efea calc(100% / var(--rows))); }
+.salon-agenda-item { display:flex; align-items:center; gap:12px; text-align:left; width:100%; padding:11px 12px; border-radius:13px; transition:background .15s; }
+.salon-agenda-item:hover { background:#f4f8f5; }
+.salon-agenda-item:focus-visible { outline-offset:-1px; }
+.salon-bottom-safe { padding-bottom:calc(env(safe-area-inset-bottom, 0px) + 6px); }
+.no-scrollbar::-webkit-scrollbar { display:none; }
+.no-scrollbar { scrollbar-width:none; }
+.thin-scroll::-webkit-scrollbar { width:7px;height:7px; }
+.thin-scroll::-webkit-scrollbar-thumb { background:#d7e4db;border-radius:99px; }
+@media(max-width:767px) { .salon-page { padding-bottom:88px!important; } .salon-kpi { padding:11px 13px; } }
+@media(prefers-reduced-motion:reduce) { *,*::before,*::after { scroll-behavior:auto!important; transition-duration:.01ms!important; animation-duration:.01ms!important; } }

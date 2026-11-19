@@ -1,0 +1,45 @@
+{
+  "version": "V7",
+  "basedOn": "Beauty_Salon_OS_V6_日结锁账与经营对账源码.zip",
+  "basedOnSha256": "f03225bf725f5d1680c0041cc25d31ea55f5491c14c425345a0f24bd3f41aed5",
+  "implementation": "Durable request idempotency for booking, responsive client retry, zero duplicate resource/notification writes on successful replay",
+  "changed": [
+    "README.md",
+    "apps/api/src/api.test.ts",
+    "apps/api/src/app.ts",
+    "apps/api/src/routes/admin.ts",
+    "apps/api/src/routes/public.ts",
+    "apps/api/src/services/booking.ts",
+    "apps/customer-web/src/lib/api.ts",
+    "apps/customer-web/src/pages/BookingPage.tsx",
+    "docs/COMPETITOR_RESEARCH.md",
+    "package-lock.json",
+    "package.json",
+    "packages/database/migrations/meta/_journal.json",
+    "packages/database/src/schema.ts"
+  ],
+  "added": [
+    "apps/api/src/services/booking-idempotency.ts",
+    "docs/BUILD_REPORT_V7.json",
+    "docs/CHANGELOG_V7.md",
+    "packages/database/migrations/0005_booking_idempotency.sql",
+    "tests/booking-idempotency-unit.test.mjs"
+  ],
+  "removed": [],
+  "verification": {
+    "nodeBuiltInUnitTests": "6/6 passed (3 booking fingerprint, 3 V6 cash-close); node --experimental-strip-types --test tests/booking-idempotency-unit.test.mjs tests/cash-close-unit.test.mjs",
+    "typescriptSyntax": "84 TS/TSX files parsed; no errors",
+    "relativeImports": "170 checked; all resolved",
+    "zipIntegrity": "verified after creation",
+    "typescriptTypeCheck": "NOT PASSED: node_modules/@types/node and third-party deps unavailable",
+    "postgresqlIntegration": "NOT RUN: PostgreSQL server and dependencies unavailable; regression tests authored, not executed",
+    "browserE2E": "NOT RUN: no live browser/backend stack",
+    "migration": "0005_booking_idempotency.sql authored and journal updated, NOT executed on PostgreSQL"
+  },
+  "risks": [
+    "DB migration mandatory before deploying new API",
+    "Older clients without key cannot recover lost success response",
+    "Browser refresh loses in-memory key",
+    "No verified live PG transactions, delivery or build"
+  ]
+}

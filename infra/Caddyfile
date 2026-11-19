@@ -1,0 +1,30 @@
+# Beauty Salon OS — Caddy 配置（独立域名模式）
+# 站点地址由环境变量 SALON_DOMAIN 指定（本地演示可用 http://localhost）
+{$SALON_DOMAIN:http://localhost} {
+	encode gzip
+
+	# API：/api/* → api 服务（剥离 /api 前缀）
+	handle_path /api/* {
+		reverse_proxy app:8787
+	}
+
+	# 管理端 SPA：/admin/* → /srv/admin
+	handle_path /admin/* {
+		root * /srv/admin
+		try_files {path} /index.html
+		file_server
+	}
+
+	# 顾客端 SPA：其余路径
+	handle {
+		root * /srv/customer
+		try_files {path} /index.html
+		file_server
+	}
+
+	header {
+		X-Content-Type-Options nosniff
+		Referrer-Policy strict-origin-when-cross-origin
+		-Server
+	}
+}

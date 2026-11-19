@@ -1,0 +1,42 @@
+{
+  "version": "V8",
+  "localBase": "Beauty_Salon_OS_V7_预约幂等重试与丢失回执恢复源码.zip",
+  "localBaseSha256": "f96cc8545f985bc7a6d48c80ac55cceb1377edbadc0e1c7059ecdf2d562df019",
+  "libraryBaseStatus": "V7 upload attempts returned AccessDeny; last confirmed library base V6. V8 candidate is NOT promoted until uploaded and integrated.",
+  "scope": "Prevent manager-created leave/maintenance from silently conflicting with booked staff/equipment; validate and serialize shift operations, expose bilingual operational errors.",
+  "modified": [
+    "README.md",
+    "apps/admin-web/src/pages/Staff.tsx",
+    "apps/api/src/api.test.ts",
+    "apps/api/src/routes/admin.ts",
+    "apps/api/src/services/booking.ts",
+    "docs/COMPETITOR_RESEARCH.md",
+    "package-lock.json",
+    "package.json",
+    "packages/i18n/src/ja.ts",
+    "packages/i18n/src/zh-CN.ts"
+  ],
+  "added": [
+    "apps/api/src/services/schedule-guards.ts",
+    "docs/BUILD_REPORT_V8.json",
+    "docs/CHANGELOG_V8.md",
+    "tests/schedule-guards-unit.test.mjs"
+  ],
+  "removed": [],
+  "verification": {
+    "nodeBuiltInTests": "10/10 passed (V6/V7 6 plus V8 4) on 2026-11-19 JST",
+    "typeScriptParsing": "83 TS/TSX files parsed; 0 syntax errors (TypeScript 5.8.3)",
+    "relativeImports": "171 local relative import/export refs resolved, 0 missing",
+    "npmTypecheck": "FAILED: 3rd-party deps not installed (luxon/drizzle-orm/vitest/@types/node etc); does not prove type safety",
+    "pgIntegrationTests": "5 V8 integration scenarios authored, NOT RUN (no PostgreSQL or node_modules); scenarios: RBAC leave privacy, existing appointments + maintenance, parallel booking-vs-leave, shift creation/deletion, batch shift generation",
+    "browserE2E": "NOT RUN",
+    "dbMigration": "none new; V7 0005 migration must be present before deploy",
+    "zipIntegrity": "ZIP member CRC verified using zipfile.testzip"
+  },
+  "risk": [
+    "Cross-table guard enforced by same advisory lock in app routes, not by cross-table DB constraint; direct SQL or uncovered mutations may bypass it",
+    "Existing conflicting blocked periods/shifts require legacy-data cleanup and audit",
+    "V7/V8 not present in requested Library folder due AccessDeny; retain artifacts and SHA",
+    "Full typecheck, PostgreSQL concurrency and browser tests not run; not commercial ready"
+  ]
+}
