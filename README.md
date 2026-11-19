@@ -122,3 +122,15 @@ DATABASE_URL=postgres://... ./scripts/restore.sh ./backups/salon-YYYYMMDD-HHMMSS
 - [V4 测试与升级](docs/DEPLOY_V4.md)
 - [部署教程（日本 Ubuntu 服务器）](docs/DEPLOY.md)
 - [已完成 / 未完成功能清单](docs/FEATURES.md)
+
+
+## V13 日本・中国平台集成接口（未完成第三方授权）
+
+店长导航新增「中日平台接入中心」。可查看日本/中国候选渠道、授权中转 Inbox，以及导出无顾客 PII 的 CSV / ICS 文件。
+第三方原生平台接入**并未自动完成**：已完成的是商家自有/获授权中转的 HMAC 签名事件接收接口、去重和人工核对，平台方授权、双向排期同步、微信/美团/PayPay 资金调用另行开发与验证。
+参见 `docs/INTEGRATIONS_JP_CN.md`、`docs/CHANGELOG_V13.md`、数据库迁移 `0008_integration_inbox.sql`。
+
+## V14 等候名单与取消补位
+
+所选日期无空位时，顾客可在预约页登记等候（幂等防重复、自动关联老顾客档案）；店长端新增「等候名单」页，按日查看登记、标记通知与成约，并可用「补位候选查询」按空出的时间找候选顾客。等候条目不是预约、不占用时段。
+V14 同时修复了 V13 的迁移日志缺失（0008 未登记会静默跳过）等问题，并完成开源底座评估与架构决定。参见 `docs/CHANGELOG_V14.md`、`docs/ARCHITECTURE_DECISION_V14.md`、数据库迁移 `0009_waitlist.sql`。

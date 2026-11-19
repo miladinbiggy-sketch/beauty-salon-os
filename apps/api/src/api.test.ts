@@ -6,6 +6,7 @@ import { DEFAULT_STORE_SETTINGS, toIso, tokyoMs } from "@salon/shared";
 import { buildApp } from "./app.js";
 import { loadConfig } from "./config.js";
 import { createNotifier } from "./queue.js";
+import { signedPayload } from "./services/integration-contract.js";
 
 /**
  * API 集成测试：连真实 PostgreSQL（TEST_DATABASE_URL，
@@ -33,6 +34,7 @@ const D = {
   masterRace: "2027-03-13",
   hoursGuard: "2027-04-21",
   serviceGuard: "2027-04-22",
+  integration: "2027-05-12",
 };
 const ALL_DATES = Object.values(D);
 const t = (date: string, hhmm: string) => toIso(tokyoMs(date, hhmm));
@@ -949,5 +951,82 @@ describe("V12 收款与退款弱网重试：不重复流水", () => {
     },managerToken);
     expect(close.status).toBe(201);
     expect((await keyedPost(refundPath,body,refundKey)).status).toBe(200);
+  });
+});
+
+
+describe("V13 中日授权桥接接口：真实 PostgreSQL / 审核隔离", () => {
+  const secretHex = "bd".repeat(32);
+  async function bridge(event: unknown, opts?: { tamper?: boolean; badKey?: boolean }) {
+    const config = loadConfig({ DATABASE_URL: TEST_DB_URL, QUEUE_DRIVER: "db", TRUST_PROXY: "true",
+      JWT_SECRET: "test-secret-test-secret-123456", PARTNER_WEBHOOK_KEYS_JSON:
+      JSON.stringify({ [`${storeId}:cn_meituan`]: secretHex }) });
+    const securedApp = buildApp({ db: handle.db, config, notifier: createNotifier(config) });
+    const body = JSON.stringify(event);
+    const now = Math.floor(Date.now() / 1000);
+    const sig = signedPayload(Buffer.from(opts?.badKey ? "aa".repeat(32) : secretHex, "hex"), now, Buffer.from(body));
+    const res = await securedApp.fetch(new Request(`http://test/integrations/bridge/${storeId}/cn_meituan/events`, {
+      method: "POST", body: opts?.tamper ? body + " " : body,
+      headers: { "Content-Type": "application/json", "X-Salon-Timestamp": String(now),
+        "X-Salon-Signature": `sha256=${sig}` },
+    }));
+    return { status: res.status, body: (await res.json()) as any };
+  }
+
+  it("same signed booking event is saved once; reuse eventId with changed content -> 409", async () => {
+    const event = { eventId: "cn-event-1", bookingRef: "cn-order-1", eventType: "booking_requested",
+      startAt: t(D.integration, "14:00"), endAt: t(D.integration, "15:00"), serviceRef: "nails" };
+    const a = await bridge(event);
+    expect(a.status).toBe(202);
+    expect(a.body.reviewState).toBe("needs_mapping");
+    const same = await bridge(event);
+    expect(same.status).toBe(200);
+    expect(same.body.id).toBe(a.body.id);
+    expect((await bridge({ ...event, serviceRef: "lashes" })).status).toBe(409);
+    expect((await bridge(event, { tamper: true })).status).toBe(401);
+    expect((await bridge(event, { badKey: true })).status).toBe(401);
+    const all = await handle.db.select().from(schema.integrationInbox)
+      .where(eq(schema.integrationInbox.externalEventId, "cn-event-1"));
+    expect(all).toHaveLength(1);
+  });
+
+  it("intake cannot auto-book, manager sees inbox and staff cannot see; linking requires existing booking", async () => {
+    const event = { eventId: "cn-event-2", bookingRef: "cn-order-2", eventType: "booking_requested",
+      startAt: t(D.integration, "16:00"), endAt: t(D.integration, "17:00"),
+      localStaffId: staffA, localServiceId: svcGel };
+    const received = await bridge(event);
+    expect(received.status).toBe(202);
+    expect(received.body.reviewState).toBe("pending");
+    expect((await req("/admin/integrations/inbox", { token: staffToken })).status).toBe(403);
+    const manager = await req("/admin/integrations/inbox", { token: managerToken });
+    expect(manager.status).toBe(200);
+    expect(manager.body.some((r: any) => r.id === received.body.id)).toBe(true);
+    expect(manager.body[0].payloadDigest).toBeUndefined();
+    expect((await post(`/admin/integrations/inbox/${received.body.id}/resolve`,
+      { resolution: "linked", appointmentId: "11111111-1111-4111-8111-111111111111" }, managerToken)).status).toBe(400);
+    const localBooking = await post("/admin/appointments", {
+      customerName: "Integration Test", customerPhone: "09012345678", staffId: staffA,
+      startAt: event.startAt, selections: [{ serviceId: svcGel }], source: "admin",
+    }, managerToken);
+    expect(localBooking.status).toBe(201);
+    const linked = await post(`/admin/integrations/inbox/${received.body.id}/resolve`,
+      { resolution: "linked", appointmentId: localBooking.body.id }, managerToken);
+    expect(linked.status).toBe(200);
+    expect(linked.body.reviewState).toBe("linked");
+    const collision = await bridge({ ...event, eventId: "cn-event-3", bookingRef: "cn-order-3" });
+    expect(collision.status).toBe(202);
+    expect(collision.body.reviewState).toBe("conflict");
+    expect((await post(`/admin/integrations/inbox/${received.body.id}/resolve`,
+      { resolution: "ignored" }, managerToken)).status).toBe(409);
+  });
+
+  it("exports keep customer private and are limited to managers", async () => {
+    const from = encodeURIComponent(t(D.integration, "00:00"));
+    const to = encodeURIComponent(t("2027-05-13", "00:00"));
+    const csv = await req(`/admin/integrations/appointments.csv?from=${from}&to=${to}`, { token: managerToken });
+    expect(csv.status).toBe(200);
+    expect(String(csv.body)).not.toContain("09012345678");
+    expect(String(csv.body)).not.toContain("Integration Test");
+    expect((await req(`/admin/integrations/appointments.csv?from=${from}&to=${to}`, { token: staffToken })).status).toBe(403);
   });
 });

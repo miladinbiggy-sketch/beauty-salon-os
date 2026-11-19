@@ -422,3 +422,50 @@ export const careRecords = pgTable(
     check("care_records_category_ck", sql`${t.category} IN ('nail', 'lash', 'beauty')`),
   ],
 );
+
+/** V13: provider-neutral, reviewed-only integration inbox, intentionally without any customer PII. */
+export const integrationInbox = pgTable("integration_inbox", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  storeId: uuid("store_id").notNull().references(() => stores.id, { onDelete: "cascade" }),
+  provider: text("provider").notNull(),
+  externalEventId: text("external_event_id").notNull(),
+  externalBookingRef: text("external_booking_ref").notNull(),
+  eventType: text("event_type").notNull(),
+  payloadDigest: text("payload_digest").notNull(),
+  startAt: timestamp("start_at", { withTimezone: true }),
+  endAt: timestamp("end_at", { withTimezone: true }),
+  serviceRef: text("service_ref"),
+  staffRef: text("staff_ref"),
+  localStaffId: uuid("local_staff_id").references(() => staff.id, { onDelete: "set null" }),
+  localServiceId: uuid("local_service_id").references(() => services.id, { onDelete: "set null" }),
+  reviewState: text("review_state").notNull().default("pending"),
+  linkedAppointmentId: uuid("linked_appointment_id").references(() => appointments.id, { onDelete: "set null" }),
+  reviewedBy: uuid("reviewed_by").references(() => users.id, { onDelete: "set null" }),
+  reviewedAt: timestamp("reviewed_at", { withTimezone: true }),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+}, (t) => [
+  uniqueIndex("integration_inbox_store_provider_event_unique").on(t.storeId, t.provider, t.externalEventId),
+  index("integration_inbox_store_state_idx").on(t.storeId, t.reviewState, t.createdAt),
+  index("integration_inbox_external_booking_idx").on(t.storeId, t.provider, t.externalBookingRef),
+]);
+
+/** V14: waitlist （等候名单） — a contact request for cancellation backfill, never a booking. */
+export const waitlistEntries = pgTable("waitlist_entries", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  storeId: uuid("store_id").notNull().references(() => stores.id, { onDelete: "cascade" }),
+  customerId: uuid("customer_id").references(() => customers.id, { onDelete: "set null" }),
+  name: text("name").notNull(),
+  phone: text("phone").notNull(),
+  serviceId: uuid("service_id").references(() => services.id, { onDelete: "set null" }),
+  staffId: uuid("staff_id").references(() => staff.id, { onDelete: "set null" }),
+  desiredDate: date("desired_date", { mode: "string" }).notNull(),
+  earliestTime: text("earliest_time").notNull(),
+  latestTime: text("latest_time").notNull(),
+  status: text("status").notNull().default("waiting"),
+  notifiedAt: timestamp("notified_at", { withTimezone: true }),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+}, (t) => [
+  index("waitlist_store_date_status_idx").on(t.storeId, t.desiredDate, t.status, t.createdAt),
+  index("waitlist_store_phone_idx").on(t.storeId, t.phone),
+]);

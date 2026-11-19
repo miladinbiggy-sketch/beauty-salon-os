@@ -66,6 +66,7 @@ services:
     environment:
       DATABASE_URL: postgres://${POSTGRES_USER:-salon}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-salon}
       REDIS_URL: redis://redis:6379
+      PARTNER_WEBHOOK_KEYS_JSON: "${PARTNER_WEBHOOK_KEYS_JSON:-}"
       JWT_SECRET: ${JWT_SECRET:?请在 .env 中设置 JWT_SECRET}
       QUEUE_DRIVER: bullmq
       PORT: "8787"

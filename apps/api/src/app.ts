@@ -7,6 +7,8 @@ import type { Notifier } from "./queue.js";
 import { authRoutes } from "./routes/auth.js";
 import { publicRoutes } from "./routes/public.js";
 import { adminRoutes, staffRoutes } from "./routes/admin.js";
+import { integrationIngressRoutes, adminIntegrationRoutes } from "./routes/integrations.js";
+import { waitlistPublicRoutes, waitlistAdminRoutes } from "./routes/waitlist.js";
 
 export interface AppDeps {
   db: Database;
@@ -41,6 +43,10 @@ export function buildApp({ db, config, notifier }: AppDeps): Hono {
 
   app.route("/auth", authRoutes(db, config));
   app.route("/public", publicRoutes(db, config, notifier));
+  app.route("/integrations/bridge", integrationIngressRoutes(db, config));
+  app.route("/admin/integrations", adminIntegrationRoutes(db, config));
+  app.route("/public", waitlistPublicRoutes(db, config));
+  app.route("/admin", waitlistAdminRoutes(db, config));
   app.route("/admin", adminRoutes(db, config, notifier));
   app.route("/staff", staffRoutes(db, config));
 

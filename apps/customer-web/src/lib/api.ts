@@ -192,6 +192,18 @@ export const api = {
       body: JSON.stringify(body),
     });
   },
+  joinWaitlist(body: {
+    storeId: string;
+    name: string;
+    phone: string;
+    serviceId?: string | null;
+    staffId?: string | null;
+    date: string;
+    earliestTime: string;
+    latestTime: string;
+  }): Promise<{ id: string; status: string; duplicate: boolean }> {
+    return request(`/public/waitlist`, { method: "POST", body: JSON.stringify(body) });
+  },
   lookupAppointment(body: { storeId: string; bookingCode: string; phone: string }): Promise<AppointmentDto> {
     return request<AppointmentDto>(`/public/appointments/lookup`, {
       method: "POST",

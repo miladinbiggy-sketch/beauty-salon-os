@@ -137,3 +137,24 @@
 | [PostgreSQL 18 Unique Index Checks](https://www.postgresql.org/docs/18/index-unique-checks.html)、[Transaction Isolation](https://www.postgresql.org/docs/current/transaction-iso.html) | 官方文档说明唯一索引对并发竞争的最终约束；强事务隔离与明确锁可以避免读写竞态 | `payments_store_idempotency_key_unique` + 既有 `cashLedgerLock` + 审计原子写入 | PostgreSQL 官方文档；无需引入求解器、开源模型或闭源 SDK |
 
 本轮实际文件：`routes/admin.ts`、`services/payment-idempotency.ts`、`schema.ts`、`0007_payment_idempotency.sql`、店长收银 UI/请求客户端、8 项新 Node 测试和 3 组仅编写未执行的 PostgreSQL 回归场景。核心财务逻辑完全确定性，不通过外部模型。生产前仍必须完成 PostgreSQL 并发验证、真实第三方支付对账、前端交互和许可证审计。
+
+## V13 本轮中日接入可行性核验（2026-11-19 JST）
+
+| 产品/开源项目及官方出处 | 已核验的真实能力/限制 | 独立实现、授权和适用性决策 | 本轮修改/检查 |
+| --- | --- | --- | --- |
+| 日本 かんざし [美甲官方页面](https://www.kanzashi.com/about/nail.html)、[FAQ](https://www.kanzashi.com/q_a/index.html) | 公布多预约来源一元管理、双订预防、POS 关联；没有在本轮确认可向任意第三方开放的开发者 API | 参考「不同渠道的事件需统一去重」经营规则，不复制商业代码；真实接口另行合作取得 | `integration-contract.ts`、`integration_inbox` 唯一索引与门店隔离 |
+| 日本 SALON BOARD [官网](https://salonboard.com/)、[第三方明确说明](https://salona.jp/faq) | 未查到适用于一般开发者的 HOT PEPPER Beauty/SALON BOARD 公开预约 API；第三方说明自动接入可能触及规则 | 仅保留 CSV/ICS、人工录入、未来合规授权桥接选项；不做后台抓取或凭据共享 | `Integrations.tsx` 中明确未连接；管理页导出 |
+| 日本 [LINE Developers Webhook 签名文档](https://developers.line.biz/en/docs/messaging-api/verify-webhook-signature/) | LINE 原生回调使用消息正文 HMAC-SHA256 与 `x-line-signature`，验签必须使用未经变更的正文 | V13 的 `X-Salon-Signature` 是**本项目自有中转协议**，并非 LINE 原生 API！真实 LINE 适配另行实现 | `routes/integrations.ts` 不接受 LINE 原生签名冒充；签名测试 |
+| 中国 [美团生态开放平台](https://openapi.meituan.com/) 及 [技术服务合作中心](https://developer.meituan.com/) | 有第三方开放合作入口和 API 方式，但未核准具体美业预约的可用范围和商户权限 | 需商户+开发者许可、沙箱与业务签约；V13 仅保留 provider ID、私有授权桥接协议 | `cn_meituan` 目录和本地 HMAC 入站测试 |
+| 中国 [抖音开放平台权限说明](https://open.douyin.com/platform/resource/docs/accession-guide/type-and-permission) | 生活服务权限与开发者/服务商身份相关，不是所有账号都有 | 保留 `cn_douyin` 适配入口，不实现未经申请的私有订单接口 | 目录 `mode=partner_approval`，界面提示未连接 |
+| 开源 [Easy!Appointments](https://github.com/alextselegidis/easyappointments) | 自托管预约，GPL-3.0 | 参考公共业务规范，不复制代码，避免对私有商用发行产生许可义务 | 无第三方代码导入 |
+| 开源 [OpenSalon README](https://github.com/clawnify/OpenSalon/blob/main/README.md) | README 表述 AGPL-3.0；GitHub 页面可能显示 MIT，不一致需进一步核准源代码实际许可证 | 暂不引入，仅借鉴明确可独立实现的预约来路/员工日历概念 | 无第三方代码导入 |
+| Google [Calendar Events API](https://developers.google.com/workspace/calendar/api/v3/reference/events/insert) | 创建事件需要授权，支持 RFC3339 时间与带时区的日历对象 | 本轮仅做脱敏 ICS 手动导出，不声称已支持 OAuth 或自动双向推送 | `/admin/integrations/appointments.ics` + 店长文件下载 |
+
+**本轮业务需求**：跨境门店可能同时使用日本和中国获客/预约软件，未获授权的回调不应进入排单、更不能修改客户资料或资金。**拟独立实现并已落实**：签名事件收件箱、事件幂等、约束初检、人工台账核对、脱敏文件导出。**尚未实现**：任何上述商业平台原生的双向 API 对接，需先核实具体商户/开发者权限与服务条款。**许可**：只使用项目现有开源依赖和 Node 内置 crypto，没有复制外部商业或 GPL/AGPL 源码。**核验**：参见 `docs/BUILD_REPORT_V13.json`，明确区分已执行单测和未执行集成测试。
+
+## V14 轮次更新（2026-11-19 核验）
+
+- 核验对象：OpenSalon（MIT，Laravel/PHP，约 103 star、无 Release、无 POS/会员）、Easy!Appointments（GPL-3.0，PHP/CodeIgniter，v1.5.2 活跃维护）、Lumina（无 LICENSE 文件，Next.js/Prisma，v0.4.1 pre-1.0）、FullCalendar（核心 MIT，Resource Timeline 为付费 Premium）。
+- 结论：三家候选底座均不采用（栈不兼容／GPL 传染／无许可证）；FullCalendar 不引入（现有自研日历已覆盖需求）。架构决定全文见 `docs/ARCHITECTURE_DECISION_V14.md`，逐项证据见 `docs/OSS_EVALUATION_V14.md`。
+- 本轮借鉴的产品思想：SALON BOARD／かんざし 的"取消补位"工作流——热门时段满约不流失、取消后按登记顺序联系补位。已落地为 V14 等候名单模块（顾客端登记＋店长端候选查询），未复制任何闭源实现。

@@ -18,6 +18,7 @@ import {
 } from "../lib/api";
 import { useLocale } from "../lib/i18n";
 import { DateTimePicker } from "../components/DateTimePicker";
+import { WaitlistForm } from "../components/WaitlistForm";
 import { AppointmentCard } from "../components/AppointmentCard";
 
 const CATEGORY_ORDER: ServiceCategory[] = ["nail", "lash", "beauty", "other"];
@@ -41,6 +42,8 @@ export function BookingPage() {
   const [staffChoice, setStaffChoice] = useState<string | null>(null); // null = 不指定
   const [slot, setSlot] = useState<AvailabilityOption | null>(null);
   const [slotRefreshKey, setSlotRefreshKey] = useState(0);
+  const [pickedDate, setPickedDate] = useState<string | null>(null);
+  const [slotCount, setSlotCount] = useState(-1);
 
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
@@ -351,7 +354,21 @@ export function BookingPage() {
               selectedStartAt={slot?.startAt ?? null}
               onSelect={setSlot}
               refreshKey={slotRefreshKey}
+              onDateChange={setPickedDate}
+              onAvailabilityChange={setSlotCount}
             />
+            {slotCount === 0 && pickedDate && (
+              <WaitlistForm
+                store={store}
+                date={pickedDate}
+                serviceId={selections[0]?.serviceId ?? null}
+                staffId={staffChoice}
+                name={name}
+                phone={phone}
+                onNameChange={setName}
+                onPhoneChange={setPhone}
+              />
+            )}
           </div>
         </section>
       )}

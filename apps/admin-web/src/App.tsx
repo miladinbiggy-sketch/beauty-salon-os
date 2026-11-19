@@ -16,6 +16,8 @@ import PaymentsPage from "./pages/Payments";
 import CashClosePage from "./pages/CashClose";
 import ReportsPage from "./pages/Reports";
 import SettingsPage from "./pages/Settings";
+import IntegrationsPage from "./pages/Integrations";
+import WaitlistPage from "./pages/Waitlist";
 import MySchedulePage from "./pages/MySchedule";
 
 interface NavItem { to: string; key: MessageKey; icon: SalonIconName }
@@ -28,6 +30,8 @@ const MANAGER_NAV: NavItem[] = [
   { to: "/payments", key: "admin.nav.payments", icon: "wallet" },
   { to: "/cash-close", key: "admin.nav.cashClose", icon: "wallet" },
   { to: "/reports", key: "admin.nav.reports", icon: "chart" },
+  { to: "/integrations", key: "admin.nav.integrations", icon: "globe" },
+  { to: "/waitlist", key: "admin.nav.waitlist", icon: "clock" },
   { to: "/settings", key: "admin.nav.settings", icon: "settings" },
 ];
 const STAFF_NAV: NavItem[] = [
@@ -129,6 +133,8 @@ export default function App() {
     <Route path="/cash-close" element={<Protected managerOnly><CashClosePage/></Protected>}/>
     <Route path="/reports" element={<Protected managerOnly><ReportsPage/></Protected>}/>
     <Route path="/settings" element={<Protected managerOnly><SettingsPage/></Protected>}/>
+    <Route path="/integrations" element={<Protected managerOnly><IntegrationsPage/></Protected>}/>
+    <Route path="/waitlist" element={<Protected managerOnly><WaitlistPage/></Protected>}/>
     <Route path="*" element={<Navigate to="/" replace/>}/>
   </Routes></HashRouter></ToastProvider></AuthProvider></LocaleProvider>;
 }

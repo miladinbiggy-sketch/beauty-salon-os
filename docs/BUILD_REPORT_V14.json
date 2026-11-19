@@ -1,0 +1,21 @@
+{
+  "version": "0.14.0",
+  "date": "2026-11-19",
+  "baseline": "V13 candidate + V12 production fixes re-applied",
+  "typecheck": "pass (tsc -b, all packages)",
+  "tests": { "total": 107, "passed": 107, "failed": 0, "environment": "PostgreSQL 16 (local) + Redis, real migrations" },
+  "migrationRehearsal": "V12 journal(8) -> V14 journal(10), data intact, waitlist_entries + integration_inbox created",
+  "webBuild": "pass (customer-web + admin-web, vite)",
+  "fixes": [
+    "journal missing 0008_integration_inbox entry (would silently skip migration)",
+    "staff skills-only PUT 500 (Drizzle empty set) — re-applied from V12",
+    "bookingWindowDays cap 365 -> 3650 — re-applied from V12",
+    "V8 test time 11:40 -> 11:45 (seed buffer is 15 min) — re-applied from V12",
+    "integration-contract.ts match[2] possibly undefined (noUncheckedIndexedAccess)",
+    "api.test.ts bridge() body typed unknown",
+    "waitlist admin middleware scoped to /waitlist paths (was intercepting all /admin/* fall-through)"
+  ],
+  "newFeature": "Waitlist & cancellation backfill: migration 0009, public join (idempotent, rate-limited), admin workbench + candidates lookup, audit-logged status transitions, 6 new PG integration tests",
+  "architectureDecision": "Keep existing core (B+C hybrid); OpenSalon/Easy!Appointments/Lumina rejected as base — see docs/ARCHITECTURE_DECISION_V14.md",
+  "notBuilt": ["LINE real-account test (no credentials)", "service photos", "coupons/points/membership tiers", "win-back campaigns", "multi-store switcher UI", "real payment-gateway refunds"]
+}

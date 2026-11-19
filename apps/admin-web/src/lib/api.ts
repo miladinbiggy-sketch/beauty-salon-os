@@ -282,3 +282,22 @@ export interface StaffPerformance {
   completedCount: number;
   revenueJpy: number;
 }
+
+/** Download manager-only, PII-free calendar/CSV snapshots without placing auth tokens in URLs. */
+export async function downloadIntegrationExport(format: "csv" | "ics", from: string, to: string): Promise<void> {
+  const query = new URLSearchParams({ from, to });
+  const res = await fetch(`${BASE}/admin/integrations/appointments.${format}?${query}`, {
+    method: "GET", credentials: "include", cache: "no-store",
+  });
+  if (!res.ok) throw new ApiError(res.status, "EXPORT_FAILED", `Export HTTP ${res.status}`);
+  const blob = await res.blob();
+  const url = URL.createObjectURL(blob);
+  try {
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `salon-appointments.${format}`;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+  } finally { URL.revokeObjectURL(url); }
+}

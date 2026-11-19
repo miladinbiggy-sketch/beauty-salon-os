@@ -13,6 +13,10 @@ interface DateTimePickerProps {
   onSelect: (option: AvailabilityOption | null) => void;
   /** 变化时强制重新拉取可用时间（如 409 冲突后刷新） */
   refreshKey?: number;
+  /** 当前选中日期变化时通知父组件（如等候名单登记需要日期） */
+  onDateChange?: (date: string) => void;
+  /** 当前日期的可约时段数量变化时通知父组件 */
+  onAvailabilityChange?: (count: number) => void;
 }
 
 interface DayOption {
@@ -32,6 +36,8 @@ export function DateTimePicker({
   selectedStartAt,
   onSelect,
   refreshKey = 0,
+  onDateChange,
+  onAvailabilityChange,
 }: DateTimePickerProps) {
   const { t, locale } = useLocale();
 
@@ -57,6 +63,9 @@ export function DateTimePicker({
 
   // 选择组合序列化后作为依赖，避免引用变化导致重复请求
   const selKey = JSON.stringify(selections);
+
+  useEffect(() => { onDateChange?.(date); }, [date, onDateChange]);
+  useEffect(() => { onAvailabilityChange?.(options.length); }, [options, onAvailabilityChange]);
 
   useEffect(() => {
     setDate((prev) => (days.some((d) => d.date === prev && !d.closed) ? prev : firstOpen));

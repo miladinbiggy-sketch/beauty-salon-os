@@ -1,5 +1,6 @@
 import { DEFAULT_STORE_SETTINGS, type StoreSettings } from "@salon/shared";
 import { z } from "zod";
+import { parseIntegrationKeys } from "./services/integration-contract.js";
 
 const envSchema = z.object({
   DATABASE_URL: z.string().min(1),
@@ -13,12 +14,15 @@ const envSchema = z.object({
   RATE_LIMIT_DRIVER: z.enum(["redis", "memory"]).default("memory"),
   /** External browser API prefix, e.g. /api or /salon-api, so cookies never leak to other apps. */
   SESSION_COOKIE_PATH: z.string().regex(/^\/[a-zA-Z0-9/_-]*$/).default("/"),
+  /** V13: authorized partner-specific HMAC keys; no third-party credentials in database. */
+  PARTNER_WEBHOOK_KEYS_JSON: z.string().default("{}").transform((v) => v || "{}"),
 });
 
 export type AppConfig = z.infer<typeof envSchema> & { isProd: boolean };
 
 export function loadConfig(env: Record<string, string | undefined> = process.env): AppConfig {
   const parsed = envSchema.parse(env);
+  parseIntegrationKeys(parsed.PARTNER_WEBHOOK_KEYS_JSON); // fail closed on malformed configuration
   const isProd = env.NODE_ENV === "production";
   if (isProd) {
     if (parsed.RATE_LIMIT_DRIVER !== "redis") throw new Error("Production requires RATE_LIMIT_DRIVER=redis");

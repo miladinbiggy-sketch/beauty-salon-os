@@ -1,0 +1,37 @@
+{
+  "project": "Beauty Salon OS",
+  "version": "V13",
+  "date_jst": "2026-11-19",
+  "source": {
+    "archive": "Beauty_Salon_OS_V12_收银退款幂等与财务审计候选源码.zip",
+    "sha256": "6fe727d141c81963a401f0f298feecab0192ed42cb8c9f9009eb47b095adc003",
+    "library_chain_restored": "V7-V12 uploaded sequentially; files.list verified /Beauty Salon OS"
+  },
+  "scope": [
+    "Japan/China provider-neutral adapter catalog, permission-first HMAC bridge inbox",
+    "Cross-store event dedupe, time-window conflict hints, manual resolution with transactional audit",
+    "PII-minimized manager-only CSV/ICS export and bilingual integrations UI"
+  ],
+  "new_migration": "packages/database/migrations/0008_integration_inbox.sql",
+  "checks": {
+    "node_pure_unit": { "result": "passed", "passed": 44, "failed": 0, "new_v13_tests": 8 },
+    "syntax_parse_ts_tsx_js_mjs": { "result": "passed", "files": 104 },
+    "relative_import_paths": { "result": "passed", "paths": 200 },
+    "i18n": { "result": "passed", "ja_zh_matched_keys": 224 },
+    "docker_compose_yaml": { "result": "parsed", "files": 2 },
+    "postgresql_integration": { "result": "not_run", "written_tests": 3, "reason": "No PostgreSQL test instance and project npm dependencies in current environment" },
+    "native_provider_sandbox": { "result": "not_run", "reason": "No vendor API agreements, OAuth grants or merchant credentials; proprietary services not accessed" },
+    "npm_ci_offline": { "result": "failed", "reason": "vite 6.4.6 tarball absent from npm offline cache (ENOTCACHED)" },
+    "full_typescript_typecheck": { "result": "failed_not_accepted", "reason": "Workspace dependencies, @types/node, luxon, vitest, drizzle-orm and others absent" },
+    "browser_e2e": { "result": "not_run", "reason": "No complete dependency build/browser environment" }
+  },
+  "risks": [
+    "No native API/OAuth/merchant payment integration; a configured bridge key is not a live provider connection",
+    "External requests are ingested only for manual review and never reserve slots or modify payments",
+    "No integrated PostgreSQL concurrency/migration or end-to-end UI tests; cannot claim production readiness",
+    "Custom bridge signing protocol is not LINE, WeChat, Meituan or Douyin native webhook signature",
+    "Manual CSV/ICS export is not live synchronization; do not export or import without store authorization",
+    "Migration 0008 requires staging database restoration/rollback rehearsal before deployment"
+  ],
+  "claims": "candidate version only until full typecheck, migration and E2E pass"
+}
